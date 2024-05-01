@@ -1423,13 +1423,7 @@ begin_window :: proc(ctx: ^Context, title: string, rect: Rect, opt := Options{})
 
 		/* do title text */
 		if .NO_TITLE not_in opt {
-			id := get_id(ctx, "!title")
-			update_control(ctx, id, rect, opt)
 			draw_control_text(ctx, title, tr, .TITLE_TEXT, opt)
-			if id == ctx.focus_id && ctx.mouse_down_bits == {.LEFT} {
-				cnt.rect.x += ctx.mouse_delta.x
-				cnt.rect.y += ctx.mouse_delta.y
-			}
 			body.y += tr.h
 			body.h -= tr.h
 		}
@@ -1445,6 +1439,13 @@ begin_window :: proc(ctx: ^Context, title: string, rect: Rect, opt := Options{})
 				cnt.open = false
 			}
 		}
+	}
+
+	/* do `move` window */
+	update_control(ctx, id, rect, opt)
+	if id == ctx.focus_id && ctx.mouse_down_bits == {.LEFT} {
+		cnt.rect.x += ctx.mouse_delta.x
+		cnt.rect.y += ctx.mouse_delta.y
 	}
 
 	/* do `resize` handle */
