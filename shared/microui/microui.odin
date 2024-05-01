@@ -1424,7 +1424,7 @@ begin_window :: proc(ctx: ^Context, title: string, rect: Rect, opt := Options{})
 		/* do title text */
 		if .NO_TITLE not_in opt {
 			id := get_id(ctx, "!title")
-			update_control(ctx, id, tr, opt)
+			update_control(ctx, id, rect, opt)
 			draw_control_text(ctx, title, tr, .TITLE_TEXT, opt)
 			if id == ctx.focus_id && ctx.mouse_down_bits == {.LEFT} {
 				cnt.rect.x += ctx.mouse_delta.x
