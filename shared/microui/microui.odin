@@ -274,7 +274,7 @@ default_style := Style {
 	footer_height = 20,
 	scrollbar_size = 12,
 	thumb_size = 8,
-	colors =  {
+	colors = {
 		.TEXT = {230, 230, 230, 255},
 		.BORDER = {25, 25, 25, 255},
 		.WINDOW_BG = {50, 50, 50, 255},
@@ -1451,28 +1451,32 @@ begin_window :: proc(ctx: ^Context, title: string, rect: Rect, opt := Options{})
 	/* do `resize` handle */
 	if .NO_RESIZE not_in opt {
 		@(static)
-		resizing: bool
-		@(static)
 		drag_start: Vec2
 		@(static)
 		size_start: Vec2
+		@(static)
+		tmp_id: Id
 
 		sz := ctx.style.footer_height
 		id := get_id(ctx, "!resize")
 		r := Rect{rect.x + rect.w - sz, rect.y + rect.h - sz, sz, sz}
 		draw_icon(ctx, .RESIZE, r, ctx.style.colors[.TEXT])
 		update_control(ctx, id, r, opt)
+
 		if id == ctx.focus_id && .LEFT in ctx.mouse_down_bits {
-			if resizing == false {
+			if drag_start == 0 {
+				fmt.println(id, "resize")
+				tmp_id = id
 				drag_start = ctx.mouse_pos
 				size_start = {cnt.rect.w, cnt.rect.h}
-				resizing = true
 			}
 
 			cnt.rect.w = max(96, size_start.x + ctx.mouse_pos.x - drag_start.x)
 			cnt.rect.h = max(64, size_start.y + ctx.mouse_pos.y - drag_start.y)
-		} else {
-			resizing = false
+		} else if id == tmp_id && .LEFT in ctx.mouse_released_bits {
+			fmt.println(id, "no resize")
+			drag_start = 0
+			tmp_id = 0
 		}
 		body.h -= sz
 	}
