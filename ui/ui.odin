@@ -105,7 +105,7 @@ main :: proc() {
 		footer_height = 20,
 		scrollbar_size = 12,
 		thumb_size = 8,
-		colors =  {
+		colors = {
 			.TEXT = {230, 230, 230, 255},
 			.BORDER = {255, 255, 255, 0},
 			.WINDOW_BG = {255, 255, 255, 255},
@@ -196,7 +196,11 @@ main :: proc() {
 		@(static)
 		opts := mu.Options{.NO_CLOSE}
 
-		if mu.window(ctx, "Demo Window", {40, 40, 300, 450}, opts) {
+		if mu.window(ctx, "[1] Window", {40, 40, 300, 450}, opts) {
+		}
+		if mu.window(ctx, "[2] Window", {40, 40, 300, 450}, opts) {
+		}
+		if mu.window(ctx, "[3] Window", {40, 40, 300, 450}, opts) {
 		}
 		mu.end(ctx)
 
@@ -240,7 +244,6 @@ render :: proc(ctx: ^mu.Context, renderer: ^SDL.Renderer) {
 		case ^mu.Command_Rect:
 			SDL.SetRenderDrawColor(renderer, cmd.color.r, cmd.color.g, cmd.color.b, cmd.color.a)
 			SDL.RenderFillRect(renderer, &SDL.Rect{cmd.rect.x, cmd.rect.y, cmd.rect.w, cmd.rect.h})
-			draw_rectangle(renderer, 100, 100, 200, 200, 1, 255, 0, 255, 255)
 		case ^mu.Command_Icon:
 			src := mu.default_atlas[cmd.id]
 			x := cmd.rect.x + (cmd.rect.w - src.w) / 2
