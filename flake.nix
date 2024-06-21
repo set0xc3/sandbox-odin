@@ -3,21 +3,22 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
   };
 
-  outputs = {nixpkgs, ...} @ inputs: let
+  outputs = {nixpkgs, ...}: let
     system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.${system};
   in {
     devShells.${system}.default = pkgs.mkShell {
-      buildInputs = [
-        pkgs.odin
-        pkgs.SDL2
-        pkgs.libGL
-        pkgs.xorg.libX11
-      ];
+      LD_LIBRARY_PATH = "$LD_LIBRARY_PATH:${
+        pkgs.lib.makeLibraryPath [
+        ]
+      }";
 
-      # shellHook = ''
-      #   exec $SHELL
-      # '';
+      buildInputs = with pkgs; [
+        odin
+        SDL2
+        libGL
+        xorg.libX11
+      ];
     };
   };
 }

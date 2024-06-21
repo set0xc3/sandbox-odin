@@ -240,6 +240,7 @@ render :: proc(ctx: ^mu.Context, renderer: ^SDL.Renderer) {
 		case ^mu.Command_Rect:
 			SDL.SetRenderDrawColor(renderer, cmd.color.r, cmd.color.g, cmd.color.b, cmd.color.a)
 			SDL.RenderFillRect(renderer, &SDL.Rect{cmd.rect.x, cmd.rect.y, cmd.rect.w, cmd.rect.h})
+			draw_rectangle(renderer, 100, 100, 200, 200, 1, 255, 0, 255, 255)
 		case ^mu.Command_Icon:
 			src := mu.default_atlas[cmd.id]
 			x := cmd.rect.x + (cmd.rect.w - src.w) / 2
@@ -256,4 +257,40 @@ render :: proc(ctx: ^mu.Context, renderer: ^SDL.Renderer) {
 	}
 
 	SDL.RenderPresent(renderer)
+}
+
+// SDL2_gfx
+
+draw_line :: proc(renderer: ^SDL.Renderer, x1, x2, y: i32, r, g, b, a: u8) -> (res: i32) {
+	res |= SDL.SetRenderDrawBlendMode(renderer, (a == 255) ? .NONE : .BLEND)
+	res |= SDL.SetRenderDrawColor(renderer, r, g, b, a)
+	res |= SDL.RenderDrawLine(renderer, x1, y, x2, y)
+	return
+}
+
+draw_rectangle :: proc(renderer: ^SDL.Renderer, x1, y1, x2, y2, rad: i32, r, g, b, a: u8) {
+	/* Check valid radius */
+	if rad < 0 {
+		return
+	}
+
+	/* Draw corners */
+	xx1 := x1 + rad
+	xx2 := x2 - rad
+	yy1 := y1 + rad
+	yy2 := y2 - rad
+	// arcRGBA(renderer, xx1, yy1, rad, 180, 270, r, g, b, a)
+	// arcRGBA(renderer, xx2, yy1, rad, 270, 360, r, g, b, a)
+	// arcRGBA(renderer, xx1, yy2, rad,  90, 180, r, g, b, a)
+	// arcRGBA(renderer, xx2, yy2, rad,   0,  90, r, g, b, a)
+
+	/* Draw lines */
+	if xx1 <= xx2 {
+		draw_line(renderer, xx1, xx2, y1, r, g, b, a)
+		draw_line(renderer, xx1, xx2, y2, r, g, b, a)
+	}
+	if yy1 <= yy2 {
+		draw_line(renderer, x1, yy1, yy2, r, g, b, a)
+		draw_line(renderer, x2, yy1, yy2, r, g, b, a)
+	}
 }
