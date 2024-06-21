@@ -1465,7 +1465,6 @@ begin_window :: proc(ctx: ^Context, title: string, rect: Rect, opt := Options{})
 
 		if id == ctx.focus_id && .LEFT in ctx.mouse_down_bits {
 			if drag_start == 0 {
-				fmt.println(id, "resize")
 				tmp_id = id
 				drag_start = ctx.mouse_pos
 				size_start = {cnt.rect.w, cnt.rect.h}
