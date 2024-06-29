@@ -7,6 +7,9 @@ import mu "shared:microui"
 
 import SDL "vendor:sdl2"
 
+WINDOW_WIDTH :: 1280
+WINDOW_HEIGHT :: 720
+
 state := struct {
 	mu_ctx:          mu.Context,
 	log_buf:         [1 << 16]byte,
@@ -29,8 +32,8 @@ main :: proc() {
 		"microui-odin",
 		SDL.WINDOWPOS_UNDEFINED,
 		SDL.WINDOWPOS_UNDEFINED,
-		1280,
-		720,
+		WINDOW_WIDTH,
+		WINDOW_HEIGHT,
 		{.HIDDEN, .RESIZABLE},
 	)
 	if window == nil {
@@ -107,11 +110,11 @@ main :: proc() {
 		thumb_size = 8,
 		colors = {
 			.TEXT = {230, 230, 230, 255},
-			.BORDER = {255, 255, 255, 0},
+			.BORDER = {255, 255, 255, 255},
 			.WINDOW_BG = {255, 255, 255, 255},
-			.TITLE_BG = {255, 255, 255, 0},
-			.TITLE_TEXT = {255, 255, 255, 0},
-			.PANEL_BG = {0, 0, 0, 0},
+			.TITLE_BG = {155, 155, 155, 255},
+			.TITLE_TEXT = {255, 255, 255, 255},
+			.PANEL_BG = {0, 0, 0, 255},
 			.BUTTON = {75, 75, 75, 255},
 			.BUTTON_HOVER = {95, 95, 95, 255},
 			.BUTTON_FOCUS = {115, 115, 115, 255},
@@ -193,15 +196,17 @@ main :: proc() {
 		}
 
 		mu.begin(ctx)
-		@(static)
-		opts := mu.Options{.NO_CLOSE}
 
-		if mu.window(ctx, "[1] Window", {40, 40, 300, 450}, opts) {
+		// Title
+		{
+			@(static)
+			opts := mu.Options{.NO_TITLE, .NO_RESIZE, .NO_SCROLL, .NO_CLOSE, .NO_INTERACT}
+
+			if mu.window(ctx, "title", {0, 0, WINDOW_WIDTH, 32}, opts) {
+				mu.button(ctx, "BUTTON")
+			}
 		}
-		if mu.window(ctx, "[2] Window", {40, 40, 300, 450}, opts) {
-		}
-		if mu.window(ctx, "[3] Window", {40, 40, 300, 450}, opts) {
-		}
+
 		mu.end(ctx)
 
 		render(ctx, renderer)
@@ -260,40 +265,4 @@ render :: proc(ctx: ^mu.Context, renderer: ^SDL.Renderer) {
 	}
 
 	SDL.RenderPresent(renderer)
-}
-
-// SDL2_gfx
-
-draw_line :: proc(renderer: ^SDL.Renderer, x1, x2, y: i32, r, g, b, a: u8) -> (res: i32) {
-	res |= SDL.SetRenderDrawBlendMode(renderer, (a == 255) ? .NONE : .BLEND)
-	res |= SDL.SetRenderDrawColor(renderer, r, g, b, a)
-	res |= SDL.RenderDrawLine(renderer, x1, y, x2, y)
-	return
-}
-
-draw_rectangle :: proc(renderer: ^SDL.Renderer, x1, y1, x2, y2, rad: i32, r, g, b, a: u8) {
-	/* Check valid radius */
-	if rad < 0 {
-		return
-	}
-
-	/* Draw corners */
-	xx1 := x1 + rad
-	xx2 := x2 - rad
-	yy1 := y1 + rad
-	yy2 := y2 - rad
-	// arcRGBA(renderer, xx1, yy1, rad, 180, 270, r, g, b, a)
-	// arcRGBA(renderer, xx2, yy1, rad, 270, 360, r, g, b, a)
-	// arcRGBA(renderer, xx1, yy2, rad,  90, 180, r, g, b, a)
-	// arcRGBA(renderer, xx2, yy2, rad,   0,  90, r, g, b, a)
-
-	/* Draw lines */
-	if xx1 <= xx2 {
-		draw_line(renderer, xx1, xx2, y1, r, g, b, a)
-		draw_line(renderer, xx1, xx2, y2, r, g, b, a)
-	}
-	if yy1 <= yy2 {
-		draw_line(renderer, x1, yy1, yy2, r, g, b, a)
-		draw_line(renderer, x2, yy1, yy2, r, g, b, a)
-	}
 }

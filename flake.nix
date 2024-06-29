@@ -7,18 +7,26 @@
     system = "x86_64-linux";
     pkgs = nixpkgs.legacyPackages.${system};
   in {
-    devShells.${system}.default = pkgs.mkShell {
-      LD_LIBRARY_PATH = "$LD_LIBRARY_PATH:${
-        pkgs.lib.makeLibraryPath [
-        ]
-      }";
+    devShells.${system}.default = with pkgs;
+      pkgs.mkShell {
+        LD_LIBRARY_PATH = "$LD_LIBRARY_PATH:${
+          pkgs.lib.makeLibraryPath [
+            clang
+            SDL2
+            SDL2_ttf
+            libGL
+            xorg.libX11
+          ]
+        }";
 
-      buildInputs = with pkgs; [
-        odin
-        SDL2
-        libGL
-        xorg.libX11
-      ];
-    };
+        buildInputs = with pkgs; [
+          odin
+          clang
+          SDL2
+          SDL2_ttf
+          libGL
+          xorg.libX11
+        ];
+      };
   };
 }

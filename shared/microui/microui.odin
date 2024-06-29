@@ -687,8 +687,7 @@ set_clip :: proc(ctx: ^Context, rect: Rect) {
 }
 
 draw_rect :: proc(ctx: ^Context, rect: Rect, color: Color) {
-	rect := rect
-	rect = intersect_rects(rect, get_clip_rect(ctx))
+	rect := intersect_rects(rect, get_clip_rect(ctx))
 	if rect.w > 0 && rect.h > 0 {
 		cmd := push_command(ctx, Command_Rect)
 		cmd.rect = rect
@@ -1473,7 +1472,6 @@ begin_window :: proc(ctx: ^Context, title: string, rect: Rect, opt := Options{})
 			cnt.rect.w = max(96, size_start.x + ctx.mouse_pos.x - drag_start.x)
 			cnt.rect.h = max(64, size_start.y + ctx.mouse_pos.y - drag_start.y)
 		} else if id == tmp_id && .LEFT in ctx.mouse_released_bits {
-			fmt.println(id, "no resize")
 			drag_start = 0
 			tmp_id = 0
 		}
