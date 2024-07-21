@@ -34,7 +34,7 @@ main :: proc() {
 		SDL.WINDOWPOS_UNDEFINED,
 		WINDOW_WIDTH,
 		WINDOW_HEIGHT,
-		{.HIDDEN, .RESIZABLE},
+		{.HIDDEN, .RESIZABLE, .OPENGL},
 	)
 	if window == nil {
 		fmt.eprintln(SDL.GetError())
@@ -42,24 +42,7 @@ main :: proc() {
 	}
 	defer SDL.DestroyWindow(window)
 
-	backend_idx: i32 = -1
-	if n := SDL.GetNumRenderDrivers(); n <= 0 {
-		fmt.eprintln("No render drivers available")
-		return
-	} else {
-		for i in 0 ..< n {
-			info: SDL.RendererInfo
-			if err := SDL.GetRenderDriverInfo(i, &info); err == 0 {
-				// NOTE(bill): "direct3d" seems to not work correctly
-				if info.name == "opengl" {
-					backend_idx = i
-					break
-				}
-			}
-		}
-	}
-
-	renderer := SDL.CreateRenderer(window, backend_idx, {.ACCELERATED, .PRESENTVSYNC})
+	renderer := SDL.CreateRenderer(window, -1, {.ACCELERATED, .PRESENTVSYNC})
 	if renderer == nil {
 		fmt.eprintln("SDL.CreateRenderer:", SDL.GetError())
 		return
@@ -108,7 +91,7 @@ main :: proc() {
 		footer_height = 20,
 		scrollbar_size = 12,
 		thumb_size = 8,
-		colors = {
+		colors = #partial{
 			.TEXT = {230, 230, 230, 255},
 			.BORDER = {255, 255, 255, 255},
 			.WINDOW_BG = {255, 255, 255, 255},
@@ -202,9 +185,19 @@ main :: proc() {
 			@(static)
 			opts := mu.Options{.NO_TITLE, .NO_RESIZE, .NO_SCROLL, .NO_CLOSE, .NO_INTERACT}
 
-			if mu.window(ctx, "title", {0, 0, WINDOW_WIDTH, 32}, opts) {
+			if mu.window(ctx, "1 title", {0, 0, 100, 100}) {
 				mu.button(ctx, "BUTTON")
 			}
+			// if mu.window(ctx, "2 title", {0, 0, 100, 100}) {
+			// 	mu.button(ctx, "BUTTON")
+			// }
+			// if mu.window(ctx, "3 title", {0, 0, 100, 100}) {
+			// 	mu.button(ctx, "BUTTON")
+			// 	mu.begin_panel(ctx, "Panel")
+			// 	mu.end_panel(ctx)
+			// }
+
+			mu.draw_line(ctx, {0, 0}, {100, 100}, {255, 0, 255, 255})
 		}
 
 		mu.end(ctx)
@@ -246,6 +239,10 @@ render :: proc(ctx: ^mu.Context, renderer: ^SDL.Renderer) {
 				render_texture(renderer, &dst, src, cmd.color)
 				dst.x += dst.w
 			}
+		case ^mu.Command_Line:
+			// SDL.RenderSetScale(renderer, 4, 4)
+			SDL.SetRenderDrawColor(renderer, cmd.color.r, cmd.color.g, cmd.color.b, cmd.color.a)
+			SDL.RenderDrawLine(renderer, cmd.start.x, cmd.start.y, cmd.end.x, cmd.end.y)
 		case ^mu.Command_Rect:
 			SDL.SetRenderDrawColor(renderer, cmd.color.r, cmd.color.g, cmd.color.b, cmd.color.a)
 			SDL.RenderFillRect(renderer, &SDL.Rect{cmd.rect.x, cmd.rect.y, cmd.rect.w, cmd.rect.h})
