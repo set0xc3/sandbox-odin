@@ -51,7 +51,7 @@ main :: proc() {
 
 	state.atlas_texture = SDL.CreateTexture(
 		renderer,
-		u32(SDL.PixelFormatEnum.RGBA32),
+		SDL.PixelFormatEnum.RGBA32,
 		.TARGET,
 		mu.DEFAULT_ATLAS_WIDTH,
 		mu.DEFAULT_ATLAS_HEIGHT,
